@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  smartmet-server:
+    cap_add:
+      - SYS_PTRACE
+    image: smartmet-grid:latest
+    build: smartmet-server.Dockerfile
+    # container_name: smartmet-server
+    container_name: smartmet-server
+    volumes:
+      - ./smartmet:/etc/smartmet
+      - ./data:/srv/data
+    environment:
+      - SMARTMET_GRID_CONFIG_FILE=/etc/smartmet/libraries/grid-files/grid-files.conf
+      - SMARTMET_ENV_FILE=/etc/smartmet/engines/grid-engine/base.conf
+      - REDIS_CONTENT_SERVER_ADDRESS=redis_db
+      - REDIS_CONTENT_SERVER_PORT=6379
+      - REDIS_CONTENT_SERVER_TABLE_PREFIX=a.
+    ports:
+      - "80:80"
+    depends_on: 
+      # - smartmet-server-db
+      - redis_db
+    restart: always
+    entrypoint:
+      - /usr/sbin/smartmetd
+      - '-c'
+      - /etc/smartmet/smartmet.conf
+
+
+  # smartmet-server-db:
+  #   image: smartmet-server-db
+  #   container_name: smartmet-server-db
+  #   restart: "no"
+  #   ports:
+  #    - "5432:5432"
+  #   volumes:
+  #     - ../bahama-dump/db:/var/lib/postgresql/data
+
+  fminames-db:
+    build: 
+      context: ./
+      dockerfile: fminames-db.Dockerfile
+    image: fminames-db:latest
+    container_name: smartmet-grid-postgresql-db
+    restart: "no"
+    environment:
+      POSTGRES_PASSWORD: OmaHassuSalasana1234!
+      POSTGRES_USER: fminames_user
+      # POSTGRES_DB: fminames  
+    ports:
+     - "5435:5432"
+    volumes:
+      # Keep database stuff stored on local file system
+      - ./db:/var/lib/postgresql/data
+
+  redis_db:
+    # From image...
+    image: redis:latest
+    # Create a container named...
+    container_name: redis_content_server
+    restart: always
+    ports:
+      - "6379:6379"
+
