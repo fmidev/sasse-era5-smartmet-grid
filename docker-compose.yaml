@@ -2,10 +2,12 @@ version: "3"
 
 services:
   smartmet-server:
-    cap_add:
-      - SYS_PTRACE
+    # cap_add:
+    #   - SYS_PTRACE
     image: smartmet-grid:latest
-    build: smartmet-server.Dockerfile
+    build: 
+      context: ./
+      dockerfile: smartmet-server.Dockerfile
     # container_name: smartmet-server
     container_name: smartmet-server
     volumes:
@@ -28,16 +30,7 @@ services:
       - '-c'
       - /etc/smartmet/smartmet.conf
 
-
-  # smartmet-server-db:
-  #   image: smartmet-server-db
-  #   container_name: smartmet-server-db
-  #   restart: "no"
-  #   ports:
-  #    - "5432:5432"
-  #   volumes:
-  #     - ../bahama-dump/db:/var/lib/postgresql/data
-
+  # Smartmet-server is very demanding and requires this database to be present
   fminames-db:
     build: 
       context: ./
@@ -63,4 +56,3 @@ services:
     restart: always
     ports:
       - "6379:6379"
-
