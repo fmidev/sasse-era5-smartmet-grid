@@ -9,4 +9,4 @@ FROM mdillon/postgis:9.5
 # https://hub.docker.com/_/postgres/
 # Initialization scripts
 # Add database named fminames with schemas and tables
-COPY ./db-init-scripts/fminames.sql /docker-entrypoint-initdb.d/fminames.sql
+COPY ./db-init-scripts/* /docker-entrypoint-initdb.d/
