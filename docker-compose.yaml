@@ -11,7 +11,7 @@ services:
     container_name: smartmet-server
     volumes:
       - ./smartmet:/etc/smartmet:Z
-      - ../era5-data/:/srv/data:Z
+      - ../era5-data/:/srv/data:ro
       - ./scripts:/srv/scripts:Z
     environment:
       # Settings for grib files are here
@@ -51,7 +51,8 @@ services:
      - "5432:5432"
     volumes:
       # Keep database stuff stored on local file system
-      - ./db:/var/lib/postgresql/data:Z
+      - db:/var/lib/postgresql/data
+
 
   # Redis is used for storing information for grib-data files
   redis-db:
@@ -63,3 +64,6 @@ services:
     ports:
       # Port exposed for connecting from host (not required in production)
       - "6379:6379"
+
+volumes:
+  db:
