@@ -20,11 +20,18 @@ RUN yum -y install smartmet-plugin-grid-gui
 RUN yum -y install smartmet-tools-grid
 RUN yum clean all 
 
+
 HEALTHCHECK --interval=5m --timeout=3s \
     CMD curl -f http://localhost/admin?what=qengine || exit 1
 
 # wms.conf defines imagecache. timeseriescache's use is yet to be found.
-RUN mkdir -p /var/smartmet/timeseriescache /var/smartmet/imagecache
+RUN mkdir -p /var/log/smartmet /var/smartmet/timeseriescache /var/smartmet/imagecache
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["smartmetd"]
+RUN mkdir -p /etc/smartmet /srv/data /srv/scripts
+RUN useradd johnny
+RUN chown -R johnny /etc/smartmet /srv/data /srv/scripts /var/log/smartmet /var/smartmet/timeseriescache /var/smartmet/imagecache
+# Dont use root to run commands in container
+USER johnny
+
+# ENTRYPOINT ["/docker-entrypoint.sh"]
+# CMD ["smartmetd"]

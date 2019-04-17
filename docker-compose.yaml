@@ -24,7 +24,7 @@ services:
       - REDIS_CONTENT_SERVER_TABLE_PREFIX=a.
       - POSTGRES_PASSWORD=OmaHassuSalasana1234!
     ports:
-      - "80:80"
+      - "80:8080"
     depends_on: 
       - fminames-db
       - redis-db
