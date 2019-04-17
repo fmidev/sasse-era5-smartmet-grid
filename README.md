@@ -17,12 +17,22 @@ Setup database for storing grib-file details
 
 # Fire up all three services at once
 
+This will:
+
+* Start the Postgresql-database and create a db-directory to store all the data there.
+* Start Redis for storing information about available grib data
+* Start SmartMet Server after the Postgersql is ready
+
 `docker-compose up --detatch`
 
-# Read data to redis
+# Read data to Redis
 
-In smartmet-server container
+Run a `filesys-to-smartmet`-script in the smartmet-server container... once Redis is ready.
+
 `docker exec smartmet-server /bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0`
 
 # Using timeseries 
-`http://localhost/timeseries?param=place,utctime,WindSpeedMS:ERA5:26:0:0:0&latlon=60.192059,24.945831&format=debug&source=grid&producer=ERA5&starttime=data`
+
+Exaple:
+
+`/timeseries?param=place,utctime,WindSpeedMS:ERA5:26:0:0:0&latlon=60.192059,24.945831&format=debug&source=grid&producer=ERA5&starttime=data`
