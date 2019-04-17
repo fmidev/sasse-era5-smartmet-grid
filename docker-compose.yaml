@@ -12,22 +12,26 @@ services:
     volumes:
       - ./smartmet:/etc/smartmet
       - ../era5-data/:/srv/data
+      - ./scripts:/srv/scripts
     environment:
+      # Settings for grib files are here
       - SMARTMET_GRID_CONFIG_FILE=/etc/smartmet/libraries/grid-files/grid-files.conf
+      # Other settings for grib file things
       - SMARTMET_ENV_FILE=/etc/smartmet/engines/grid-engine/base.conf
-      - REDIS_CONTENT_SERVER_ADDRESS=redis_db
+      # Redis adderess is the name of docker service
+      - REDIS_CONTENT_SERVER_ADDRESS=redis-db
       - REDIS_CONTENT_SERVER_PORT=6379
       - REDIS_CONTENT_SERVER_TABLE_PREFIX=a.
+      - POSTGRES_PASSWORD=OmaHassuSalasana1234!
     ports:
       - "80:80"
     depends_on: 
-      # - smartmet-server-db
-      - redis_db
+      - fminames-db
+      - redis-db
     restart: always
-    entrypoint:
-      - /usr/sbin/smartmetd
-      - '-c'
-      - /etc/smartmet/smartmet.conf
+    entrypoint: 
+      - "/srv/scripts/wait-for-postgres.sh"
+    command: fminames-db /usr/sbin/smartmetd -c /etc/smartmet/smartmet.conf
 
   # Smartmet-server is very demanding and requires this database to be present
   fminames-db:
@@ -39,8 +43,8 @@ services:
     restart: "no"
     environment:
       # This silly password needs to copied into ./smartmet/geonames.conf
-      POSTGRES_PASSWORD: OmaHassuSalasana1234!
-      POSTGRES_USER: fminames_user
+      - POSTGRES_PASSWORD=OmaHassuSalasana1234!
+      - POSTGRES_USER=fminames_user
       # POSTGRES_DB: fminames  
     ports:
       # Port exposed for connecting from host (not required in production)
@@ -50,11 +54,11 @@ services:
       - ./db:/var/lib/postgresql/data
 
   # Redis is used for storing information for grib-data files
-  redis_db:
+  redis-db:
     # From image...
     image: redis:latest
     # Create a container named...
-    container_name: redis_content_server
+    container_name: redis-content-server
     restart: always
     ports:
       # Port exposed for connecting from host (not required in production)

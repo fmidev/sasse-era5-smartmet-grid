@@ -1,24 +1,28 @@
 
-# Setup database for geonames-engine because raisins
+# Build and run postgres-database
+
+Setup database for geonames-engine because of who knows why
 
 `docker-compose up --detatch --build fminames-db`
 
-# Setup database for storing grib-file details
+# Build and run Redis
+
+Setup database for storing grib-file details
 
 `docker-compose up --detatch --build redis_db`
 
-# Setup SmartMet Server
-
-## Build and run
+# Build and run smartmet-server
 
 `docker-compose up --build smartmet-server`
 
-## Read data to redis
+# Fire up all three services at once
 
-Log in to smartmet-server container
-`docker exec -ti smartmet-server bash`
+`docker-compose up --detatch`
 
-Then
-`/bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0`
+# Read data to redis
 
-`/timeseries?param=place,utctime,WindSpeedMS:ERA5:26:0:0:0&latlon=60.192059,24.945831&format=debug&source=grid&producers=ERA5&starttime=2017-08-01T00:00:00Z`
+In smartmet-server container
+`docker exec smartmet-server /bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0`
+
+# Using timeseries 
+`http://localhost/timeseries?param=place,utctime,WindSpeedMS:ERA5:26:0:0:0&latlon=60.192059,24.945831&format=debug&source=grid&producer=ERA5&starttime=data`
