@@ -11,7 +11,7 @@ services:
     container_name: smartmet-server
     volumes:
       - ./smartmet:/etc/smartmet:Z
-      - ../era5-data/:/srv/data:ro
+      - /srv/era5-data/:/srv/data:ro
       - ./scripts:/srv/scripts:Z
     environment:
       # Settings for grib files are here
