@@ -18,28 +18,29 @@ In the User Data in the Advanced settings for EC2:
 ```bash
 #!/bin/bash
 
-# Get docker-images and database dumps from S3
-# Not necessarely required 
-# aws s3 sync s3://fmi-sasse-era5/ /tmp/
-
 # Directory for storing grib-data
 sudo mkdir -p /srv/era5-data
+sudo chown -R centos:centos /srv/era5-data
+```
+
+As centos user after the instance is up
+
+```bash
+cd ~/
+# User centos has the required ssh-keys
+git clone git@github.com:fmidev/sasse-era5-smartmet-grid.git ~/sasse
+
+# Get docker-images and database dumps from S3
+# Not necessarely required, if building from github
+# aws s3 sync s3://fmi-sasse-era5/ /tmp/
+
+# Start all services (even with --detatch the build process will wait until finished)
+docker-compose up --detatch
 
 # Copy file from S3
 # Do this with CloudFormation or something ¯\_(ツ)_/¯
 aws s3 cp s3://fmi-era5-world-nwp-parameters/2017/era5-201708.grib /srv/era5-data/ERA5_20170801000000_era5-201708.grib
 aws s3 cp s3://fmi-era5-world-nwp-parameters/2017/era5-preprocessed-201708.grib2 /srv/era5-data/ERA5_20170801000000_era5-preprocessed-201708.grib
-
-# Set ownership to centos user
-sudo chown -R centos:centos /srv/era5-data
-
-# User centos has the required ssh-keys
-su - centos
-git clone git@github.com:fmidev/sasse-era5-smartmet-grid.git
-cd sasse-era5-smartmet-grid
-docker-compose up -d
-# end su, I don't know if this is really necessary or not.
-exit
 ```
 
 # Build and run postgres-database
