@@ -1,0 +1,121 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  Here are some
+  details about
+  the template.
+
+#     docker: 
+#       commands: 
+#         test: 
+#           command: "echo \"$CFNTEST\" > test.txt"
+#           env: 
+#             CFNTEST: "I come from config2"
+#           cwd: "~"
+#     data: 
+#       commands: 
+#         test: 
+#           command: "echo \"$CFNTEST\" > test.txt"
+#           env: 
+#             CFNTEST: "I come from config2"
+#           cwd: "~"
+
+# cd ~/
+# # User centos has the required ssh-keys
+# git clone git@github.com:fmidev/sasse-era5-smartmet-grid.git ~/sasse
+
+# # Get docker-images and database dumps from S3
+# # Not necessarely required, if building from github
+# # aws s3 sync s3://fmi-sasse-era5/ /tmp/
+
+# # Start all services (even with --detatch the build process will wait until finished)
+# docker-compose up --detatch
+
+# # Copy file from S3
+# # Do this with CloudFormation or something ¯\_(ツ)_/¯
+# aws s3 cp s3://fmi-era5-world-nwp-parameters/2017/era5-201708.grib /srv/era5-data/ERA5_20170801000000_era5-201708.grib
+# aws s3 cp s3://fmi-era5-world-nwp-parameters/2017/era5-preprocessed-201708.grib2 /srv/era5-data/ERA5_20170801000000_era5-preprocessed-201708.grib
+
+# For an example
+# aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=1
+Parameters:
+  ERA5DataYear:
+    Type: Number
+  ERA5DataMonth:
+    Type: Number
+    MinValue: 1
+    MaxValue: 12
+
+# Mappings:
+#   set of mappings
+
+# Conditions:
+#   set of conditions
+
+# Transform:
+#   set of transforms
+
+Resources:
+  MyEC2InstanceResouce:
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+    Type: AWS::EC2::Instance
+    Properties: 
+      LaunchTemplate: 
+        LaunchTemplateId: lt-0103908425591b1a5
+        Version: 2
+      Tags: 
+        - Key: Name
+          Value: smartmet-server-grid
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -x
+            echo ${ERA5DataYear} - ${ERA5DataMonth} > ~/test.txt
+    # Metadata:
+    #   # To link metadata to certain resource, place the config nested here
+    #   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/metadata-section-structure.html
+    #   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html
+    #   AWS::CloudFormation::Init:
+    #     configSets: 
+    #       ascending: 
+    #         - "config1"
+    #         - "config2"
+    #       descending: 
+    #         - "config2"
+    #         - "config1"
+    #     config1: 
+    #       commands: 
+    #         test: 
+    #           command: "echo \"$CFNTEST\" > test.txt"
+    #           env: 
+    #             CFNTEST: "I come from config1."
+    #           cwd: "~"
+    #     config2: 
+    #       commands: 
+    #         test: 
+    #           command: "echo \"$CFNTEST\" > test2.txt"
+    #           env: 
+    #             CFNTEST: "I come from config2"
+    #           cwd: "~"
+    #   # AWS::CloudFormation::Init:
+      #   configSets: 
+      #     installAndStartRequired: 
+      #       - "mystuff"
+      #       # - "docker"
+      #       # - "data"
+      #   mystuff: 
+      #     commands:
+      #       # The following items are executed in alphabetical order
+      #       thing:
+      #         command: "touch testi.txt"
+      #         cwd: "/home/centos"
+
+# Outputs:
+#   set of outputs
+
+
+
+
+
+
