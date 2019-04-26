@@ -16,6 +16,7 @@ RUN yum -y install smartmet-plugin-admin
 RUN yum -y install smartmet-plugin-gribtimeseries
 RUN yum -y install smartmet-plugin-grid-admin
 RUN yum -y install smartmet-plugin-grid-gui
+RUN yum -y install smartmet-plugin-gribwfs
 # For installing filesys2smartmet which  is used to load grib-files to redis
 RUN yum -y install smartmet-tools-grid
 RUN yum clean all 
