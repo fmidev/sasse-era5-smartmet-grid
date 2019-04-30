@@ -75,5 +75,3 @@
 # 14) Reverse mapping function
 # 15) Default precision
 # 
-ERA5;WindDirection;2;DD-D;26;1;6;00010;1;1;1;0;E;;;;
-ERA5;WindSpeedMS;2;FF-MS;26;1;6;00010;1;1;1;0;E;;;1;
