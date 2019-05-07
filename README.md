@@ -73,7 +73,7 @@ This will:
 
 Run a `filesys-to-smartmet`-script in the smartmet-server container... once Redis is ready.
 
-`docker exec smartmet-server /bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0`
+`docker exec --user USERNAMEINCONTAINER smartmet-server /bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0`
 
 # Using timeseries 
 
