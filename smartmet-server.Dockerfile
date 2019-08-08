@@ -35,7 +35,10 @@ RUN chown -R smartmet /srv/data /var/log/smartmet /var/smartmet/timeseriescache 
 USER smartmet
 # Smartmet Servers configs should be separate from /etc's settings that come from RPM-packages
 # These locations are required to be defined in several different setting files under the config-direcotry
-COPY --chown=smartmet smartmet /home/smartmet/config 
+
+# Uncomment to include files in Docker image. 
+# Comment and add in compose-file for development
+#COPY --chown=smartmet smartmet /home/smartmet/config 
 COPY --chown=smartmet scripts /home/smartmet/scripts 
 
 
