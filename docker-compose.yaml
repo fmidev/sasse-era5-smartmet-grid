@@ -10,8 +10,8 @@ services:
       dockerfile: smartmet-server.Dockerfile
     container_name: smartmet-server
     volumes:
-      # - ./smartmet:/home/johnny/smartmet:Z
-      - ../era5-data/:/srv/data:Z
+      - ./smartmet:/home/smartmet/config:Z
+      - ../era5-data:/srv/data:Z
       # - ./scripts:/srv/scripts:Z
     environment:
       # Settings for grib files are here
