@@ -1,19 +1,22 @@
 
 # What in the…
 
-All this is for creating contours out of ERA5 data and 
+All this is for creating contours out of ERA5 data and
 storing results in a database.
 
-In short:
+When using `cloudformation.template`, you need a ready AMI that already has
+the following properties.
+
+To In short:
 
 * Start an EC2 instance in Amazon AWS
 * Log in with ssh
 * Create folder for era5-data
-* Copy some grib2-data there
 * Set ownership to era5-data-directory
 * Clone codes from GitHub
 * Build Docker images
 * Start containers with docker-compose
+* Copy ERA5-data from S3
 * Read data to Redis
 * Do things with smartmet-server
 
