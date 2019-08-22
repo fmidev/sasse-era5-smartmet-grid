@@ -1,15 +1,19 @@
 
-# How in the…
+# What in the…
+
+All this is for creating contours out of ERA5 data and 
+storing results in a database.
 
 In short:
 
-* Start EC2 instance
+* Start an EC2 instance in Amazon AWS
+* Log in with ssh
 * Create folder for era5-data
-* Copy some data there
+* Copy some grib2-data there
 * Set ownership to era5-data-directory
 * Clone codes from GitHub
-* Build images
-* Start services
+* Build Docker images
+* Start containers with docker-compose
 * Read data to Redis
 * Do things with smartmet-server
 
@@ -71,9 +75,9 @@ This will:
 
 # Read data to Redis
 
-Run a `filesys-to-smartmet`-script in the smartmet-server container... once Redis is ready.
+Run a `filesys-to-smartmet`-script in the smartmet-server container... once Redis is ready. The location of filesys-to-smartmet.cfg depends on where the settings-files are located at. On docker-compose.yaml the are currently set in `/home/smartmet/config`.
 
-`docker exec --user USERNAMEINCONTAINER smartmet-server /bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0`
+`docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0`
 
 # Using timeseries
 
@@ -81,5 +85,7 @@ Exaple:
 
 `/timeseries?param=place,utctime,WindSpeedMS:ERA5:26:0:0:0&latlon=60.192059,24.945831&format=debug&source=grid&producer=ERA5&starttime=data&timesteps=5`
 `/timeseries?producer=ERA5&param=WindSpeedMS&latlon=60.192059,24.94583&format=debug&source=grid&&starttime=2017-08-01T00:00:00Z`
+
+Read data to Redis, wait for a while, and then curl the WFS like a boss:
 
 `/bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0 && sleep 60 && curl 'localhost:8080/wfs?request=getFeature&storedquery_id=Storm&starttime=2017-08-01T00:00:00Z&endtime=2017-08-01T00:00:00Z&&bbox=21,60,24,64&crs=EPSG:4326'`
