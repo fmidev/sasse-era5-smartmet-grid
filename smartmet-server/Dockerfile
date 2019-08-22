@@ -18,7 +18,7 @@ RUN yum -y install smartmet-plugin-grid-admin
 RUN yum -y install smartmet-plugin-grid-gui
 RUN yum -y install smartmet-plugin-gribwfs
 RUN yum -y install smartmet-engine-contour
-# For installing filesys2smartmet which  is used to load grib-files to redis
+# For installing filesys2smartmet which is used to load grib-files to redis
 RUN yum -y install smartmet-tools-grid
 RUN yum clean all 
 
@@ -31,15 +31,18 @@ RUN mkdir -p /var/log/smartmet /var/smartmet/timeseriescache /var/smartmet/image
 RUN mkdir -p /srv/data
 RUN useradd smartmet
 RUN chown -R smartmet /srv/data /var/log/smartmet /var/smartmet/timeseriescache /var/smartmet/imagecache
+
 # Dont use root to run commands in container
 USER smartmet
+
 # Smartmet Servers configs should be separate from /etc's settings that come from RPM-packages
 # These locations are required to be defined in several different setting files under the config-direcotry
 
+COPY --chown=smartmet scripts /home/smartmet/scripts 
+
 # Uncomment to include files in Docker image. 
 # Comment and add in compose-file for development
-#COPY --chown=smartmet smartmet /home/smartmet/config 
-COPY --chown=smartmet scripts /home/smartmet/scripts 
+#COPY --chown=smartmet config /home/smartmet/config 
 
 
 # ENTRYPOINT ["/docker-entrypoint.sh"]

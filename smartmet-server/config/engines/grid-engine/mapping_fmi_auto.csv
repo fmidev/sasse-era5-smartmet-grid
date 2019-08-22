@@ -42,7 +42,8 @@
 #            13 Layer between two metric heights above ground
 #            14 Layer between two depths below land surface
 #            15 Isothermal level, temperature in 1/100 K
-#  8) Area interpolation method
+#  8) Level
+#  9) Area interpolation method
 #         0 = None
 #         1 = Linear
 #         2 = Nearest
@@ -50,14 +51,14 @@
 #         4 = Max
 #         500..999 = List
 #         1000..65535 = External (interpolated by an external function)
-#  9) Time interpolation method
+# 10) Time interpolation method
 #         0 = None
 #         1 = Linear
 #         2 = Nearest
 #         3 = Min
 #         4 = Max
 #         1000..65535 = External (interpolated by an external function)
-# 10) Level interpolation method
+# 11) Level interpolation method
 #         0 = None
 #         1 = Linear
 #         2 = Nearest
@@ -65,13 +66,13 @@
 #         4 = Max
 #         5 = Logarithmic
 #         1000..65535 = External (interpolated by an external function)
-# 11) Group flags
+# 12) Group flags
 #         bit 0 = Climatological parameter (=> ignore year when searching) 
-# 12) Search match (Can this mapping used when searching mappings for incomplete parameters)
+# 13) Search match (Can this mapping used when searching mappings for incomplete parameters)
 #         E = Enabled
 #         D = Disabled
 #         I = Ignore
-# 13) Mapping function (enables data conversions during the mapping)
-# 14) Reverse mapping function
-# 15) Default precision
+# 14) Mapping function (enables data conversions during the mapping)
+# 15) Reverse mapping function
+# 16) Default precision
 # 
