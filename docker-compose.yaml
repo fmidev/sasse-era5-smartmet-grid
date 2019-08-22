@@ -18,6 +18,8 @@ services:
       - REDIS_CONTENT_SERVER_PORT=6379
       # This is just some random prefix. Not sure if absolutely required
       - REDIS_CONTENT_SERVER_TABLE_PREFIX=a.
+      # The password is only required for the entrypoint script
+      # Wouldn't it be nice to store this some where else.
       - POSTGRES_PASSWORD=OmaHassuSalasana1234!
     ports:
       - "80:8080"
@@ -28,8 +30,9 @@ services:
     restart: "no"
     volumes:
       - ./smartmet-server/config:/home/smartmet/config:Z
+      # For this container you need grib2-data in ../era5-data directory
+      # Location is relative to this docker-compose.yaml file.
       - ../era5-data:/srv/data:Z
-      # - ./scripts:/srv/scripts:Z
     entrypoint:
       # The content of 'command' is passed as an argument to entrypoint script
       - "/home/smartmet/scripts/wait-for-postgres.sh"
