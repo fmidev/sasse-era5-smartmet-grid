@@ -23,12 +23,14 @@ async def count():
 async def main():
     await asyncio.gather(count(), count(), count())
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    # execute only if run as the entry point into the program
     import time
     s = time.perf_counter()
     asyncio.run(main())
     elapsed = time.perf_counter() - s
     print(f"{__file__} executed in {elapsed:0.2f} seconds.")
+
 
 # 1.1.12.449.g4109e645
 # 1.1.12.451.gdb77255f
