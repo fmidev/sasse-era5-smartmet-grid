@@ -8,8 +8,12 @@ FROM python:3.7.4-alpine3.10
 WORKDIR /usr/src/app
 
 # To 
-COPY ./app ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY ./ ./
+
+RUN pip install .
+
+# Perhaps move requiremets to setup.py?
+# RUN pip install --no-cache-dir -r requirements.txt
 
 # TODO: Figure this thing out
 # CMD [ "./bin/contouring" ]

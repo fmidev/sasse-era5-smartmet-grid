@@ -114,7 +114,7 @@ class Datareader(object):
         forecast = self._parseWFSForecast(response)
         return forecast
 
-if __name__ == '__main__':
+def main():
     dr = Datareader()
     latitude = 60.19206
     longitude = 24.94583
@@ -126,3 +126,6 @@ if __name__ == '__main__':
     starttime = "2018-09-27T05:00:00Z"
     endtime = "2018-09-29T21:00:00Z"
     print(dr.getRadiationGlobalFractilesForecast(latitude, longitude, starttime, endtime))
+
+if __name__ == '__main__':
+    main()
