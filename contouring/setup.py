@@ -27,7 +27,7 @@ setup(
     },
 
     install_requires = [
-        "pytest >= 5.1",
+        "pytest==5.0.1",
         "aiohttp >= 3.5",
         "owslib >= 0.18"
     ]
