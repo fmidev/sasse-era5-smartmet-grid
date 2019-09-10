@@ -78,7 +78,7 @@ This will:
 
 # Read data to Redis
 
-Run a `filesys-to-smartmet`-script in the smartmet-server container... once Redis is ready. The location of filesys-to-smartmet.cfg depends on where the settings-files are located at. On docker-compose.yaml the are currently set in `/home/smartmet/config`.
+Run a `filesys-to-smartmet`-script in the smartmet-server container... once Redis is ready. The location of filesys-to-smartmet.cfg depends on where the settings-files are located at. With `docker-compose.yaml` the settings are currently stored in `/home/smartmet/config`.
 
 `docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0`
 
