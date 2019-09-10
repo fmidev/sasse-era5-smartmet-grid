@@ -1,0 +1,21 @@
+version: "3"
+
+# Database for development to store contouring results
+# Amazon uses 10.7 postgresql
+# In development use Matt Dillon's 10
+
+services:
+  contours-db:
+    image: mdillon/postgis:10-alpine
+    container_name: contours-db
+    restart: "no"
+    environment:
+      # This silly password needs to copied into ./smartmet/geonames.conf
+      - POSTGRES_PASSWORD=OmaHassuSalasana1234!
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=contours
+      - POSTGRES_PORT=5431
+    ports:
+      # Port exposed for connecting from host (not required in production)
+      # These need to be different form the on with fminames_db
+     - "5431:5431"
