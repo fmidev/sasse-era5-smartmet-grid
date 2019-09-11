@@ -4,15 +4,15 @@ from owslib.wfs import WebFeatureService
 import xml.etree.ElementTree as ET
 
 class Datareader(object):
-    """Employee class is used to hold employee object data.
+    """
  
     Methods:
-        __init__(self, emp_id, emp_name)
+        __init__(self, wfs_service_url, wfs_versoin)
         print()
     """
 
-    def __init__(self, service_url='http://smartmet.fmi.fi/wfs', wfs_version='2.0.0'):
-        self.service_url = service_url
+    def __init__(self, wfs_service_url='http://smartmet.fmi.fi/wfs', wfs_version='2.0.0'):
+        self.service_url = wfs_service_url
         self.version = wfs_version
 
     def _getForecastDataValidTime(self):
@@ -116,6 +116,16 @@ class Datareader(object):
 
 def main():
     dr = Datareader()
+
+    # /wfs?request=getFeature&
+    # storedquery_id=windgustcoverage
+    # starttime=2017-08-01T00:00:00Z
+    # endtime=2017-08-01T00:00:00Z
+    # source=grid
+    # bbox=21,60,24,64
+    # crs=EPSG:4326
+    # limits=10,25
+
     latitude = 60.19206
     longitude = 24.94583
     height = 50000
