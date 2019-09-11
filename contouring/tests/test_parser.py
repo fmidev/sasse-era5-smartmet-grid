@@ -29,9 +29,37 @@ def windgust_multi_contours():
     return wfs_data
 
 def test_pressure(pressure_contours):
-    assert type(pressure_contours) is str
+    parser = Parser()
+    results = parser.list_contours_in_wfs(pressure_contours)    
+    assert type(results) is list
+    assert type(results[0]) is dict
+    assert results[0]['point_in_time'] == '2017-08-01T00:00:00Z'
+    assert 'coordinates' in results[0]
+    assert results[0]['weather_parameter'] == 'Pressure'
+    assert results[0]['coordinates'].startswith('60.000000 21.000000,63.996000 21.000000')
 
 def test_windgust(windgust_contours):
     parser = Parser()
-    results = parser.parseWFSForecast(windgust_contours)    
+    results = parser.list_contours_in_wfs(windgust_contours)
     assert type(results) is list
+    assert type(results[0]) is dict
+    assert results[0]['point_in_time'] == '2017-08-01T00:00:00Z'
+    assert 'coordinates' in results[0]
+    assert results[0]['weather_parameter'] == 'WindGust'
+    assert results[0]['coordinates'].startswith('60.105139 21.000000,63.504664 21.000000')
+    assert results[1]['coordinates'].startswith('60.000000 21.716810,60.000088 21.716934')
+
+def test_windgust_multi(windgust_multi_contours):
+    parser = Parser()
+    results = parser.list_contours_in_wfs(windgust_multi_contours)    
+    assert type(results) is list
+    assert type(results[0]) is dict
+    assert results[0]['point_in_time'] == '2017-08-01T00:00:00Z'
+    assert 'coordinates' in results[0]
+    assert results[0]['weather_parameter'] == 'WindGust'
+    assert results[0]['low_limit'] == '0'
+    assert results[1]['low_limit'] == '5'
+    assert results[2]['low_limit'] == '5'
+    assert results[0]['coordinates'].startswith('60.000000 21.000000,60.105139 21.000000')
+    assert results[1]['coordinates'].startswith('60.105139 21.000000,63.504664 21.000000')
+    assert results[2]['coordinates'].startswith('60.000000 21.716810,60.000088 21.716934')
