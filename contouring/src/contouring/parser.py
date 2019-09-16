@@ -23,24 +23,34 @@ class Parser(object):
         
         For each area there can be several surface members with coordinates
 
-        Returns:
-            Stuff
+        Returns: list of dictionaries
+            [{
+                'geometries': [...],
+                'high_limit': '',
+                'low_limit': '',
+                'point_in_time': '',
+                'unit': '',
+                'weather_parameter': ''
+            },
+            ... 
+            ]
         """
         root = ET.fromstring(data)
         results = []
         for area in root.findall('.//fmicov:phenomenonArea', self.ns):
-            area_definitions = {
+            result = {
                 'point_in_time': area.get('dateTime'),
                 'weather_parameter': area.get('parameter'),
                 'unit': area.get('unit'),
                 'low_limit': area.get('low'),
                 'high_limit': area.get('high'),
+                'geometries': []
             }
             for surface in area.findall('.//gml:surfaceMember', self.ns):
                 coordinates = surface.findall(
                     './/gml:coordinates', self.ns
                     )[0].text
-                geometry = {'coordinates': coordinates}
-                result = {**area_definitions, **geometry}
-                results.append(result)
+                result['geometries'].append(coordinates)
+            # result = {**area_definitions, **geometries}
+            results.append(result)
         return results
