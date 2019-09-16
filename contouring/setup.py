@@ -22,7 +22,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={
         'console_scripts': [
-            'contour_storm = contouring.datareader:main',
+            'contour_storm = contouring.app:main',
         ],
     },
 
