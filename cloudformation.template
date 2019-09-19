@@ -7,7 +7,7 @@ Description: >
   the template.
 
 # For an example to setup SmartMet Server with ERA5 data for January 2017:
-# aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=1
+# aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=01
 Parameters:
   ERA5DataYear:
     Type: String
