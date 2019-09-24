@@ -27,11 +27,15 @@ setup(
     },
 
     install_requires = [
-        "pytest==5.0.1",
-        "aiohttp >= 3.5",
         # owslib has requirements that should be provided in advance
         # mainly the proj4 library, that can be installed with conda package manager
         "owslib >= 0.18"
-    ]
+    ],
+    extras_require={
+        'dev':  [
+            "pytest==5.0.1",
+            "pylint"
+        ],
+    }
 
 )

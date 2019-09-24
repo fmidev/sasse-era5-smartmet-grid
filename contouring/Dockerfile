@@ -26,7 +26,7 @@ RUN mkdir -p ${mydir}
 WORKDIR ${mydir}
 
 # Copy required files incrementally and tests
-COPY --chown=anaconda:anaconda setup.py .
+COPY --chown=anaconda:anaconda setup.py setup.py
 COPY --chown=anaconda:anaconda src src
 COPY --chown=anaconda:anaconda tests tests
 
