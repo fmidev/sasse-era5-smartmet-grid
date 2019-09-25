@@ -29,7 +29,9 @@ setup(
     install_requires = [
         # owslib has requirements that should be provided in advance
         # mainly the proj4 library, that can be installed with conda package manager
-        "owslib >= 0.18"
+        "owslib >= 0.18",
+        "sqlalchemy >= 1.3.8",
+        "geoalchemy2 >= 0.6.3"
     ],
     extras_require={
         'dev':  [
