@@ -16,6 +16,8 @@
             "type": "python",
             "request": "test",
             "console": "integratedTerminal",
+            // For stepping into site-packages code
+            // when debugging difficult things
             "justMyCode": false,
         }
     ]

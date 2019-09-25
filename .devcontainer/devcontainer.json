@@ -1,13 +1,14 @@
 // For format details, see https://aka.ms/vscode-remote/devcontainer.json or the definition README at
 // https://github.com/microsoft/vscode-dev-containers/tree/master/containers/python-3-miniconda
 {
-	"name": "Python 3 - Miniconda testi",
+    "name": "Python 3 - Miniconda testi",
+    // Run contouring docker things in contouring directory
 	"context": "../contouring",
+    // Use production Dockerfile in contouring directory
 	"dockerFile": "../contouring/Dockerfile",
 
-	// Use 'settings' to set *default* container specific settings.json values on container create. 
-	// You can edit these settings after create using File > Preferences > Settings > Remote.
-	"settings": { 
+
+    "settings": { 
 		"terminal.integrated.shell.linux": "/bin/sh",
 		"python.pythonPath": "/opt/conda/bin/python",
 		"python.linting.enabled": true,
@@ -18,12 +19,12 @@
 	// Uncomment the next line if you want to publish any ports.
 	// "appPort": [],
 
-	// Uncomment the next line to run commands after the container is created.
+	// Re-install the app in editable mode and with development dependencies.
 	"postCreateCommand": "pip install -e contouring[dev]",
 
-	// Uncomment the next line to use a non-root user. On Linux, this will prevent
-	// new files getting created as root, but you may need to update the USER_UID
-	// and USER_GID in .devcontainer/Dockerfile to match your user if not 1000.
+    // Use the same network as smartmet-server and other containers started by
+    // docker-compose. This way we have access to smartmet-servers wfs-interface
+    // from development container
 	"runArgs": [ "--network", "sasse-era5-smartmet-grid_default" ],
 
 	// Add the IDs of extensions you want installed when the container is created in the array below.
