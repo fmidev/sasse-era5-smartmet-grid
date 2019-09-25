@@ -8,7 +8,7 @@ from datetime import timezone
 from types import SimpleNamespace
 
 
-def starttimes(start_year, start_month):
+def starttimes(start_year: int, start_month: int) -> datetime:
     """Generator for wfs-requests start times for given month.
 
     Starting from first day of the month at 00:00, 
@@ -30,27 +30,27 @@ def starttimes(start_year, start_month):
         yield next_time
         next_time = next_time + timedelta(hours=1)
 
+
 class Datareader(object):
     """Working between wfs-server and python"""
  
     def __init__(
         self, 
         wfs_service_url='http://smarmet.fmi.fi/wfs', 
-        wfs_version='2.0.0'
+        wfs_version='2.0.0',
+        timeout=240
     ):
-        self.wfs = WebFeatureService(url=wfs_service_url, version=wfs_version)
+        self.wfs = WebFeatureService(url=wfs_service_url, version=wfs_version, timeout=timeout)
         self.stored_query_id = None
-        self.stored_query_params = None
-
-    def build_stored_query_params(self, args):
         self.stored_query_params = SimpleNamespace()
 
     def getWFS(self):
         """Get latest wind speed forecast for given location
         """
+        if not (self.stored_query_id and self.stored_query_params):
+            raise AttributeError("Missing id of params for stored query")
         response = self.wfs.getfeature(
             storedQueryID=self.stored_query_id,
-            storedQueryParams=self.stored_query_params
+            storedQueryParams=vars(self.stored_query_params)
             )
         return response
-

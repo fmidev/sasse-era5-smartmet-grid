@@ -11,6 +11,8 @@ from owslib.feature.common import WFSCapabilitiesReader
 
 @pytest.fixture()
 def mock_capabilities(monkeypatch):
+    # Creating a new Datareader object creates a GetCapabilities request 
+    # through owslib. Make a spoof for capabilities results 
 
     def mock_read(*args, **kwargs):
         # data_file = os.path.join(FIXTURE_DIR, 'mock_capabilities.xml')
@@ -20,10 +22,16 @@ def mock_capabilities(monkeypatch):
 
     monkeypatch.setattr(WFSCapabilitiesReader, "read", mock_read)
 
-def test_create_datareader(mock_capabilities):
+def test_datareader_class(mock_capabilities):
+    # Dodge timeout errors from owslib for nonsense url with mock_capabilities
     dr = datareader.Datareader("https://fakeurl/wfs")
     assert dr.wfs.url == 'https://fakeurl/wfs'
     assert dr.wfs.version == '2.0.0'
+    dr.stored_query_params.starttime = "2017-08-01T00:00:00Z"
+    assert dr.stored_query_params.starttime == "2017-08-01T00:00:00Z"
+    dr.stored_query_params.starttime = "2017-08-01T01:00:00Z"
+    assert dr.stored_query_params.starttime == "2017-08-01T01:00:00Z"
+
 
 def test_starttimes():
     starttimes = datareader.starttimes(2017, 8)
