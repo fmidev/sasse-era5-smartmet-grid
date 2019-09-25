@@ -51,6 +51,5 @@ class Parser(object):
                     './/gml:coordinates', self.ns
                     )[0].text
                 result['geometries'].append(coordinates)
-            # result = {**area_definitions, **geometries}
             results.append(result)
         return results
