@@ -70,10 +70,12 @@ def main():
             log.debug(parsed)
     elif args.starttime:
         log.debug(f"Fetch data with given starttime {args.starttime}")
-        if not args.endtime:
-            endtime = args.starttime
+        endtime = args.endtime if args.endtime else args.starttime
         results = request_with_defined_times(datareader, args.starttime, endtime)
+        data = results.read()
         log.debug(f"Save results to database, or something...")
+        parsed = dataparser.list_contours_in_wfs(data)
+        log.debug(parsed)
     else:
         log.error("Not timeframe defined")
         msg = (
