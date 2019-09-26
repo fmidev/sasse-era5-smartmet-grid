@@ -25,7 +25,7 @@ class Parser(object):
 
         Returns: list of dictionaries
             [{
-                'geometries': [...],
+                'geometry': '',
                 'high_limit': '',
                 'low_limit': '',
                 'point_in_time': '',
@@ -38,18 +38,17 @@ class Parser(object):
         root = ET.fromstring(data)
         results = []
         for area in root.findall('.//fmicov:phenomenonArea', self.ns):
-            result = {
-                'point_in_time': area.get('dateTime'),
-                'weather_parameter': area.get('parameter'),
-                'unit': area.get('unit'),
-                'low_limit': area.get('low'),
-                'high_limit': area.get('high'),
-                'geometries': []
-            }
+            
             for surface in area.findall('.//gml:surfaceMember', self.ns):
                 coordinates = surface.findall(
                     './/gml:coordinates', self.ns
                     )[0].text
-                result['geometries'].append(coordinates)
-            results.append(result)
+                results.append({
+                    'point_in_time': area.get('dateTime'),
+                    'weather_parameter': area.get('parameter'),
+                    'unit': area.get('unit'),
+                    'low_limit': area.get('low'),
+                    'high_limit': area.get('high'),
+                    'geometry': coordinates
+                })
         return results
