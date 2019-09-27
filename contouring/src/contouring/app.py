@@ -4,6 +4,11 @@ import contouring.parser
 import argparse
 from types import SimpleNamespace
 import datetime
+import contouring.orm
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
 
 
 log = logging.getLogger(__name__)
@@ -52,9 +57,40 @@ def request_with_defined_times(datareader, starttime, endtime):
     return datareader.getWFS()
 
 
+def object_to_db(parsed_data, session):
+    stormcell = contouring.orm.StormCell(
+        point_in_time = parsed_data['point_in_time'],
+        weather_parameter = parsed_data['weather_parameter'],
+        unit= parsed_data['unit'],
+        low_limit = parsed_data['low_limit'],
+        high_limit = parsed_data['high_limit'],
+        geom = parsed_data['geometry']
+    )
+    log.debug(f"Schema shall be {stormcell.metadata.schema}")
+    log.debug('Add object to session')
+    session.add(stormcell)
 
 
 def main():
+    
+    
+    dialect = 'postgresql'
+    driver = 'psycopg2'
+    username = 'fminames_user'
+    password = 'OmaHassuSalasana1234!'
+    host = 'fminames-db'
+    port = '5432'
+    database = 'fminames'
+    database_url = f"{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}"
+    engine = create_engine(database_url, echo=True)
+    
+    log.debug('Create all here')
+    contouring.orm.Base.metadata.create_all(engine)
+    log.debug('Created all')
+
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+    session = Session()
     
     datareader = create_datareader()
     dataparser = contouring.parser.Parser()
@@ -67,7 +103,13 @@ def main():
             log.debug(f"Save results to database, or something...")
             data = results.read()
             parsed = dataparser.list_contours_in_wfs(data)
-            log.debug(parsed)
+            try:
+                object_to_db(parsed[0], session)
+            except IndexError:
+                pass
+            else:
+                log.debug(f"Commit session")
+                session.commit()
     elif args.starttime:
         log.debug(f"Fetch data with given starttime {args.starttime}")
         endtime = args.endtime if args.endtime else args.starttime
@@ -75,7 +117,8 @@ def main():
         data = results.read()
         log.debug(f"Save results to database, or something...")
         parsed = dataparser.list_contours_in_wfs(data)
-        log.debug(parsed)
+        # log.debug(parsed)
+
     else:
         log.error("Not timeframe defined")
         msg = (
@@ -83,6 +126,7 @@ def main():
             "--starttime (with optional --endtime)"
         )   
         argparser.error(msg)
+        
 
 if __name__ == '__main__':
     main()
