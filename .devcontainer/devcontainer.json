@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/vscode-remote/devcontainer.json or the definition README at
 // https://github.com/microsoft/vscode-dev-containers/tree/master/containers/python-3-miniconda
 {
-    "name": "Python 3 - Miniconda testi",
+    "name": "contouring-dev",
     // Run contouring docker things in contouring directory
 	"context": "../contouring",
     // Use production Dockerfile in contouring directory
@@ -9,17 +9,18 @@
 
 
     "settings": { 
-		"terminal.integrated.shell.linux": "/bin/sh",
-		"python.pythonPath": "/opt/conda/bin/python",
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"python.pythonPath": "/usr/local/bin/python",
 		"python.linting.enabled": true,
 		"python.linting.pylintEnabled": true,
-		"python.linting.pylintPath": "/opt/conda/bin/pylint"
+		"python.linting.pylintPath": "/usr/local/bin/pylint"
 	},
 
 	// Uncomment the next line if you want to publish any ports.
 	// "appPort": [],
 
-	// Re-install the app in editable mode and with development dependencies.
+    // Re-install the app in editable mode and with development dependencies.
+    // This perhaps is run in the right dir?
 	"postCreateCommand": "pip install -e contouring[dev]",
 
     // Use the same network as smartmet-server and other containers started by

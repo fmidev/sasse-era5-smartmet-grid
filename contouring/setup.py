@@ -26,12 +26,17 @@ setup(
         ],
     },
 
+    # Check out condas recommendations 
+    # https://www.anaconda.com/using-pip-in-a-conda-environment/
     install_requires = [
         # owslib has requirements that should be provided in advance
         # mainly the proj4 library, that can be installed with conda package manager
         "owslib >= 0.18",
         "sqlalchemy >= 1.3.8",
-        "geoalchemy2 >= 0.6.3"
+        "geoalchemy2 >= 0.6.3",
+        # The package psycopg2 Required for postgresql. It is better to have this installed through
+        # conda beforehand
+        "psycopg2"
     ],
     extras_require={
         'dev':  [
