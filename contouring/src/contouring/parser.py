@@ -2,6 +2,7 @@
 
 from owslib.wfs import WebFeatureService
 import xml.etree.ElementTree as ET
+import datetime
 
 class Parser(object):
 
@@ -44,11 +45,14 @@ class Parser(object):
                     './/gml:coordinates', self.ns
                     )[0].text
                 results.append({
-                    'point_in_time': area.get('dateTime'),
+                    'point_in_time': datetime.datetime.strptime(
+                        area.get('dateTime'),
+                        "%Y-%m-%dT%H:%M:%SZ"
+                        ).replace(tzinfo=datetime.timezone.utc),
                     'weather_parameter': area.get('parameter'),
                     'unit': area.get('unit'),
-                    'low_limit': area.get('low'),
-                    'high_limit': area.get('high'),
-                    'geometry': coordinates
+                    'low_limit': int(area.get('low')),
+                    'high_limit': int(area.get('high')),
+                    'geometry': f"POLYGON(({coordinates}))"
                 })
         return results
