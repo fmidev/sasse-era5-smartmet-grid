@@ -62,7 +62,7 @@ def test_pressure(pressure_contours):
     assert datetime.datetime.strftime(results[0]['point_in_time'], "%Y-%m-%dT%H:%M:%SZ") == '2017-08-01T00:00:00Z'
     assert results[0]['weather_parameter'] == 'Pressure'
     assert 'geometry' in results[0]
-    assert results[0]['geometry'].startswith('60.000000 21.000000,63.996000 21.000000')
+    assert results[0]['geometry'].startswith('POLYGON((60.000000 21.000000,63.996000 21.000000')
 
 def test_windgust(windgust_contours):
     parser = Parser()
@@ -72,8 +72,8 @@ def test_windgust(windgust_contours):
     assert datetime.datetime.strftime(results[0]['point_in_time'], "%Y-%m-%dT%H:%M:%SZ") == '2017-08-01T00:00:00Z'
     assert results[0]['weather_parameter'] == 'WindGust'
     assert 'geometry' in results[0]
-    assert results[0]['geometry'].startswith('60.105139 21.000000,63.504664 21.000000')
-    assert results[1]['geometry'].startswith('60.000000 21.716810,60.000088 21.716934')
+    assert results[0]['geometry'].startswith('POLYGON((60.105139 21.000000,63.504664 21.000000')
+    assert results[1]['geometry'].startswith('POLYGON((60.000000 21.716810,60.000088 21.716934')
 
 def test_windgust_multi(windgust_multi_contours):
     parser = Parser()
@@ -95,6 +95,6 @@ def test_windgust_multi(windgust_multi_contours):
     assert 'geometry' in results[1]
     assert 'geometry' in results[2]
 
-    assert results[0]['geometry'].startswith('60.000000 21.000000,60.105139 21.000000')
-    assert results[1]['geometry'].startswith('60.105139 21.000000,63.504664 21.000000')
-    assert results[2]['geometry'].startswith('60.000000 21.716810,60.000088 21.716934')
+    assert results[0]['geometry'].startswith('POLYGON((60.000000 21.000000,60.105139 21.000000')
+    assert results[1]['geometry'].startswith('POLYGON((60.105139 21.000000,63.504664 21.000000')
+    assert results[2]['geometry'].startswith('POLYGON((60.000000 21.716810,60.000088 21.716934')
