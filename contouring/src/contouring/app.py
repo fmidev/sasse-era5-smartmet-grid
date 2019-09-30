@@ -1,14 +1,14 @@
 import logging
+import os
+import argparse
+import datetime
+from types import SimpleNamespace
+
 import contouring.datareader
 import contouring.parser
-import argparse
-from types import SimpleNamespace
-import datetime
 import contouring.orm
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-
+import sqlalchemy
 
 
 log = logging.getLogger(__name__)
@@ -48,16 +48,18 @@ def create_datareader():
     datareader.stored_query_params.source = args.source
     datareader.stored_query_params.bbox = args.bbox
     datareader.stored_query_params.crs = args.crs
+    log.debug(f"Stored query ID: {datareader.stored_query_id}")
+    log.debug(f"Stored query params: {vars(datareader.stored_query_params)}")
     return datareader
 
 def request_with_defined_times(datareader, starttime, endtime):
-    log.debug(f"Fetch data with given starttime {starttime} and endtime {endtime}")
+    log.debug(f"Query starttime: {starttime}, endtime: {endtime}")
     datareader.stored_query_params.starttime = starttime
     datareader.stored_query_params.endtime = endtime
     return datareader.getWFS()
 
 
-def object_to_db(parsed_data, session):
+def data_as_stormcells(parsed_data):
     stormcell = contouring.orm.StormCell(
         point_in_time = parsed_data['point_in_time'],
         weather_parameter = parsed_data['weather_parameter'],
@@ -68,27 +70,33 @@ def object_to_db(parsed_data, session):
     )
     log.debug(f"Schema shall be {stormcell.metadata.schema}")
     log.debug('Add object to session')
-    session.add(stormcell)
+    return stormcell
 
 
 def main():
-    
-    
-    dialect = 'postgresql'
-    driver = 'psycopg2'
-    username = 'fminames_user'
-    password = 'OmaHassuSalasana1234!'
-    host = 'fminames-db'
-    port = '5432'
-    database = 'fminames'
-    database_url = f"{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}"
-    engine = create_engine(database_url, echo=True)
+
+    #
+    db_url = sqlalchemy.engine.url.URL(
+        # drivername – the name of the database backend. 
+        # This name will correspond to a module in sqlalchemy/databases
+        # or a third party plug-in.
+        os.environ['CONTOURING_DB_DIALECT'],
+        username=os.environ['CONTOURING_DB_USERNAME'],
+        password=os.environ['CONTOURING_DB_PASSWORD'],
+        host=os.environ['CONTOURING_DB_HOST'],
+        port=os.environ['CONTOURING_DB_PORT'],
+        database=os.environ['CONTOURING_DB_DATABASE']
+    )
+
+    engine = sqlalchemy.create_engine(db_url, echo=True)
+    if not args.verbose:
+        engine.echo = False
     
     log.debug('Create all here')
     contouring.orm.Base.metadata.create_all(engine)
     log.debug('Created all')
 
-    Session = sessionmaker()
+    Session = sqlalchemy.orm.sessionmaker()
     Session.configure(bind=engine)
     session = Session()
     
@@ -100,33 +108,39 @@ def main():
         for starttime in contouring.datareader.starttimes(args.year, args.month):
             formatted_starttime = starttime.strftime("%Y-%m-%dT%H:%M:%SZ")
             results = request_with_defined_times(datareader, formatted_starttime, formatted_starttime)
-            log.debug(f"Save results to database, or something...")
-            data = results.read()
-            parsed = dataparser.list_contours_in_wfs(data)
-            try:
-                object_to_db(parsed[0], session)
-            except IndexError:
-                pass
-            else:
-                log.debug(f"Commit session")
-                session.commit()
+            xml = results.read()
+            parsed = dataparser.list_contours_in_wfs(xml)
+            stormcells = map(data_as_stormcells, parsed)
+            session.add_all(stormcells)
+            log.debug(f"Items in session: {len(session.new)}")
+            if len(session.new) == 0:
+                continue
+            log.debug(f"Save results to database...")
+            session.commit()
     elif args.starttime:
-        log.debug(f"Fetch data with given starttime {args.starttime}")
+        # log.debug(f"Fetch data with given starttime {args.starttime}")
         endtime = args.endtime if args.endtime else args.starttime
         results = request_with_defined_times(datareader, args.starttime, endtime)
         data = results.read()
-        log.debug(f"Save results to database, or something...")
+        # log.debug(f"Save results to database, or something...")
         parsed = dataparser.list_contours_in_wfs(data)
+        stormcells = map(data_as_stormcells, parsed)
+        session.add_all(stormcells)
+        log.debug(f"Items in session: {len(session.new)}")
+        if len(session.new) > 0:
+            log.debug(f"Save results to database...")
+            session.commit()
+        else:
+            log.debug(f"Nothing to see here")
         # log.debug(parsed)
-
     else:
         log.error("Not timeframe defined")
         msg = (
             "Define either --year and --month or "
             "--starttime (with optional --endtime)"
-        )   
+        )
         argparser.error(msg)
-        
+    session.close()
 
 if __name__ == '__main__':
     main()

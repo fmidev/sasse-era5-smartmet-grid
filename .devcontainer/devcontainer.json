@@ -26,7 +26,10 @@
     // Use the same network as smartmet-server and other containers started by
     // docker-compose. This way we have access to smartmet-servers wfs-interface
     // from development container
-	"runArgs": [ "--network", "sasse-era5-smartmet-grid_default" ],
+    "runArgs": [
+        "--network", "sasse-era5-smartmet-grid_default",
+        "--env-file", ".env"
+    ],
 
 	// Add the IDs of extensions you want installed when the container is created in the array below.
 	"extensions": [
