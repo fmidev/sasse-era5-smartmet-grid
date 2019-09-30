@@ -5,6 +5,7 @@ LABEL maintainer "Teemu Sirviö <teemu.sirvio@fmi.fi>"
 RUN yum clean all 
 RUN rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
 RUN rpm -ivh https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-3.noarch.rpm 
+RUN yum-config-manager --disable "pgdg*" && yum-config-manager --enable pgdg95
 RUN rpm -ivh https://download.fmi.fi/smartmet-open/rhel/7/x86_64/smartmet-open-release-17.9.28-1.el7.fmi.noarch.rpm 
 RUN yum -y update 
 RUN yum -y install unzip
