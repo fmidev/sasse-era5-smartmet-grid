@@ -57,9 +57,9 @@ services:
     ports:
       # Port exposed for connecting from host (not required in production)
      - "5432:5432"
-    volumes:
-      # Keep database stuff stored on local file system
-      - ./fminames-db/data:/var/lib/postgresql/data
+    # volumes:
+    #   # Keep database stuff stored on local file system
+    #   - ./fminames-db/data:/var/lib/postgresql/data:Z
 
   # Redis is used for storing information for grib-data files
   redis-db:
