@@ -45,6 +45,10 @@ Resources:
             chown -R centos:centos /srv/data
 
             # THE SMARTMET-SERVER DOCKER IMAGE HAS TO BE RUNNING IN ORDER FOR THE NEXT STEPS TO WORK
+
+            # git clone git@github.com:fmidev/sasse-era5-smartmet-grid.git
+            # cd sasse-era5-smartmet-grid
+            #
             # CHECK THAT THE AMI HAS DOCKER CONTAINERS RUNNING ON START
             # Run filesys2smartmet-thingy, as smartmet user, because unknown reasons
             docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0
