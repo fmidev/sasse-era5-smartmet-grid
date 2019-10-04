@@ -8,6 +8,7 @@ Description: >
 
 # For an example to setup SmartMet Server with ERA5 data for January 2017:
 # aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=01
+# aws cloudformation deploy --template-file cloudformation.template --stack-name my-sasse-stack --parameter-overrides ERA5DataYear=2010 ERA5DataMonth=01 --tags Name=sasse-2010-01
 Parameters:
   ERA5DataYear:
     Type: String
@@ -15,6 +16,21 @@ Parameters:
   ERA5DataMonth:
     Type: String
     AllowedPattern: (0[1-9]|1[0-2])
+  CONTOURING_DB_DIALECT:
+    Type: String
+    Default: postgresql
+  CONTOURING_DB_USERNAME:
+    Type: String
+  CONTOURING_DB_PASSWORD:
+    NoEcho
+    Type: String
+  CONTOURING_DB_HOST:
+    Type: String
+  CONTOURING_DB_PORT:
+    Type: String
+    Default: 5432
+  CONTOURING_DB_DATABASE:
+    Type: String
 
 Resources:
   MyEC2InstanceResouce:
@@ -25,25 +41,37 @@ Resources:
         # The template use an AMI that has SmartMet Server and Redis running
         # inside a Docker container 
         LaunchTemplateId: lt-0103908425591b1a5
-        Version: 2
+        Version: 3
       Tags: 
         - Key: Name
-          Value: smartmet-server-grid
+          Value: sasse-contouring
+        - Key: Year
+          Value: { "Ref" : "ERA5DataYear" }
+        - Key: Month
+          Value: { "Ref" : "ERA5DataMonth" }
       UserData:
         Fn::Base64:
           Fn::Sub: |
             #!/bin/bash
 
             # Create a directory that is configured in SmartMet Server filesys-to-smartmet.cfg settings file
-            mkdir -p /srv/data
+            # And volume mounted in docker-compose
+            mkdir -p /home/centos/era5-data
 
             # Get data and rename to something ss understands
-            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-${ERA5DataYear}${ERA5DataMonth}.grib /srv/data/ERA5_${ERA5DataYear}${ERA5DataMonth}00000000_era5.grib
-            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2 /srv/data/ERA5_${ERA5DataYear}${ERA5DataMonth}00000000_era5-preprocessed.grib2
+            # Resulting files have first of January as "origintime" in filename
+            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-${ERA5DataYear}${ERA5DataMonth}.grib /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-${ERA5DataYear}${ERA5DataMonth}.grib
+            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2 /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2
 
             # Allow normal user to access data
-            chown -R centos:centos /srv/data
+            chown -R centos:centos /home/centos/era5-data
 
+            # The following starts the docker stuff as root from centos users 
+            # home, and is propably really stupid, 
+            # but with current know-how is the best that we can do
+            cd /home/centos/sasse-era5-smartmet-grid
+            docker-compose up -d
+            
             # THE SMARTMET-SERVER DOCKER IMAGE HAS TO BE RUNNING IN ORDER FOR THE NEXT STEPS TO WORK
 
             # git clone git@github.com:fmidev/sasse-era5-smartmet-grid.git
@@ -51,11 +79,48 @@ Resources:
             #
             # CHECK THAT THE AMI HAS DOCKER CONTAINERS RUNNING ON START
             # Run filesys2smartmet-thingy, as smartmet user, because unknown reasons
-            docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /etc/smartmet/libraries/tools-grid/filesys-to-smartmet.cfg 0
+            docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
 
             # There is a wait time for filesys2smartmet changes to be visible in smartmet-server
+            # Yes I know this is silly
             sleep 120
 
-            # THEN when the data is ready start the contouring commands
-            docker run --rm --env-file .env --network sasse-era5-smartmet-grid_default contouring contour_storm --verbose --year ${ERA5DataYear} --month ${ERA5DataMonth} --url http://smartmet-server:8080/wfs  --storedquery_id windgustcoverage --limits 15,999,20,999,25,999,30,999
-            # docker run --rm --env-file .env --network sasse-era5-smartmet-grid_default contouring contour_storm --year ${ERA5DataYear} --month ${ERA5DataMonth} --url http://smartmet-server:8080/wfs  --storedquery_id pressurecoverage --limits 0,1000
+            # So when the data is ready in smartmet (really should have some 
+            # kind of event/notification here) start the contouring commands
+            # 
+            # ALL OF THIS SHOULD BE MADE AS SEPARATE AWS LAMBDAS!
+            # Alas we don't currently have time for that
+            # This amount of env-parameters is a stupid thing, but
+            # the only thing that was able to make with current deadline
+            docker run --rm \
+              --environment CONTOURING_DB_DIALECT=${CONTOURING_DB_DIALECT} \
+              --environment CONTOURING_DB_DRIVER=${CONTOURING_DB_DRIVER} \
+              --environment CONTOURING_DB_USERNAME=${CONTOURING_DB_USERNAME} \
+              --environment CONTOURING_DB_PASSWORD=${CONTOURING_DB_PASSWORD} \
+              --environment CONTOURING_DB_HOST=${CONTOURING_DB_HOST} \
+              --environment CONTOURING_DB_PORT=${CONTOURING_DB_PORT} \
+              --environment CONTOURING_DB_DATABASE=${CONTOURING_DB_DATABASE} \
+              --network sasse-era5-smartmet-grid_default \
+              contouring contour_storm --verbose \
+              --year ${ERA5DataYear} \
+              --month ${ERA5DataMonth} \
+              --url http://smartmet-server:8080/wfs \
+              --storedquery_id windgustcoverage \
+              --limits 15,999,20,999,25,999,30,999
+
+            docker run --rm \
+              --environment CONTOURING_DB_DIALECT=${CONTOURING_DB_DIALECT} \
+              --environment CONTOURING_DB_DRIVER=${CONTOURING_DB_DRIVER} \
+              --environment CONTOURING_DB_USERNAME=${CONTOURING_DB_USERNAME} \
+              --environment CONTOURING_DB_PASSWORD=${CONTOURING_DB_PASSWORD} \
+              --environment CONTOURING_DB_HOST=${CONTOURING_DB_HOST} \
+              --environment CONTOURING_DB_PORT=${CONTOURING_DB_PORT} \
+              --environment CONTOURING_DB_DATABASE=${CONTOURING_DB_DATABASE} \
+              --network sasse-era5-smartmet-grid_default \
+              contouring contour_storm --verbose \
+              --year ${ERA5DataYear} \
+              --month ${ERA5DataMonth} \
+              --url http://smartmet-server:8080/wfs \
+              --storedquery_id pressurecoverage \
+              --limits 0,1000
+
