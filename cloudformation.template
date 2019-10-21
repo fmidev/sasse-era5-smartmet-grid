@@ -16,20 +16,20 @@ Parameters:
   ERA5DataMonth:
     Type: String
     AllowedPattern: (0[1-9]|1[0-2])
-  CONTOURING_DB_DIALECT:
+  DbDialect:
     Type: String
-    Default: postgresql
-  CONTOURING_DB_USERNAME:
+    Default: "postgresql"
+  DbUsername:
     Type: String
-  CONTOURING_DB_PASSWORD:
-    NoEcho
+  DbPassword:
+    NoEcho: True
     Type: String
-  CONTOURING_DB_HOST:
+  DbHost:
     Type: String
-  CONTOURING_DB_PORT:
+  DbPort:
     Type: String
-    Default: 5432
-  CONTOURING_DB_DATABASE:
+    Default: "5432"
+  DbDatabase:
     Type: String
 
 Resources:
@@ -44,7 +44,12 @@ Resources:
         Version: 3
       Tags: 
         - Key: Name
-          Value: sasse-contouring
+          Value: !Join
+            - ''
+            - - 'sasse-contouring-'
+              - !Ref ERA5DataYear
+              - '-'
+              - !Ref ERA5DataMonth
         - Key: Year
           Value: { "Ref" : "ERA5DataYear" }
         - Key: Month
@@ -82,7 +87,7 @@ Resources:
             docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
 
             # There is a wait time for filesys2smartmet changes to be visible in smartmet-server
-            # Yes I know this is silly
+            # Yes, I know this is silly
             sleep 120
 
             # So when the data is ready in smartmet (really should have some 
@@ -92,35 +97,37 @@ Resources:
             # Alas we don't currently have time for that
             # This amount of env-parameters is a stupid thing, but
             # the only thing that was able to make with current deadline
-            docker run --rm \
-              --environment CONTOURING_DB_DIALECT=${CONTOURING_DB_DIALECT} \
-              --environment CONTOURING_DB_DRIVER=${CONTOURING_DB_DRIVER} \
-              --environment CONTOURING_DB_USERNAME=${CONTOURING_DB_USERNAME} \
-              --environment CONTOURING_DB_PASSWORD=${CONTOURING_DB_PASSWORD} \
-              --environment CONTOURING_DB_HOST=${CONTOURING_DB_HOST} \
-              --environment CONTOURING_DB_PORT=${CONTOURING_DB_PORT} \
-              --environment CONTOURING_DB_DATABASE=${CONTOURING_DB_DATABASE} \
+            docker run \
+              --name contouring_windgust \
+              --env CONTOURING_DB_DIALECT=${DbDialect} \
+              --env CONTOURING_DB_USERNAME=${DbUsername} \
+              --env CONTOURING_DB_PASSWORD=${DbPassword} \
+              --env CONTOURING_DB_HOST=${DbHost} \
+              --env CONTOURING_DB_PORT=${DbPort} \
+              --env CONTOURING_DB_DATABASE=${DbDatabase} \
               --network sasse-era5-smartmet-grid_default \
               contouring contour_storm --verbose \
               --year ${ERA5DataYear} \
               --month ${ERA5DataMonth} \
               --url http://smartmet-server:8080/wfs \
               --storedquery_id windgustcoverage \
+              --bbox 0.237,51.849,49.662,71.161 \
               --limits 15,999,20,999,25,999,30,999
 
-            docker run --rm \
-              --environment CONTOURING_DB_DIALECT=${CONTOURING_DB_DIALECT} \
-              --environment CONTOURING_DB_DRIVER=${CONTOURING_DB_DRIVER} \
-              --environment CONTOURING_DB_USERNAME=${CONTOURING_DB_USERNAME} \
-              --environment CONTOURING_DB_PASSWORD=${CONTOURING_DB_PASSWORD} \
-              --environment CONTOURING_DB_HOST=${CONTOURING_DB_HOST} \
-              --environment CONTOURING_DB_PORT=${CONTOURING_DB_PORT} \
-              --environment CONTOURING_DB_DATABASE=${CONTOURING_DB_DATABASE} \
+            docker run \
+              --name contouring_pressure \
+              --env CONTOURING_DB_DIALECT=${DbDialect} \
+              --env CONTOURING_DB_USERNAME=${DbUsername} \
+              --env CONTOURING_DB_PASSWORD=${DbPassword} \
+              --env CONTOURING_DB_HOST=${DbHost} \
+              --env CONTOURING_DB_PORT=${DbPort} \
+              --env CONTOURING_DB_DATABASE=${DbDatabase} \
               --network sasse-era5-smartmet-grid_default \
               contouring contour_storm --verbose \
               --year ${ERA5DataYear} \
               --month ${ERA5DataMonth} \
               --url http://smartmet-server:8080/wfs \
               --storedquery_id pressurecoverage \
+              --bbox 0.237,51.849,49.662,71.161 \
               --limits 0,1000
 
