@@ -19,6 +19,16 @@ class Parser(object):
         'xsi' : 'http://www.w3.org/2001/XMLSchema-instance',
     }
 
+    def _flip_x_y(self, xy):
+        l = xy.split()
+        l.reverse()
+        return ' '.join(l)
+
+    def _flip_coordinates(self, coordinates):
+        coordinates_list = coordinates.split(',')
+        result = list(map(self._flip_x_y, coordinates_list))
+        return ','.join(result)
+
     def list_contours_in_wfs(self, data):
         """Format XML response to list of dictionaries
         
@@ -44,6 +54,7 @@ class Parser(object):
                 coordinates = surface.findall(
                     './/gml:coordinates', self.ns
                     )[0].text
+                wkt_coordinates = self._flip_coordinates(coordinates)
                 results.append({
                     'point_in_time': datetime.datetime.strptime(
                         area.get('dateTime'),
@@ -53,6 +64,6 @@ class Parser(object):
                     'unit': area.get('unit'),
                     'low_limit': int(area.get('low')),
                     'high_limit': int(area.get('high')),
-                    'geometry': f"POLYGON(({coordinates}))"
+                    'geometry': f"POLYGON(({wkt_coordinates}))"
                 })
         return results
