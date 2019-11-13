@@ -1,0 +1,88 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+  Here are some
+  details about
+  the template.
+
+# For an example to setup SmartMet Server with ERA5 data for January 2017:
+# aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=01
+# aws cloudformation deploy --template-file cloudformation.template --stack-name my-sasse-stack --parameter-overrides ERA5DataYear=2010 ERA5DataMonth=01 --tags Name=sasse-2010-01
+Parameters:
+  ERA5DataYear:
+    Type: String
+    AllowedPattern: 201[0-8]
+  ERA5DataMonth:
+    Type: String
+    AllowedPattern: (0[1-9]|1[0-2])
+  DbDialect:
+    Type: String
+    Default: "postgresql"
+#  DbUsername:
+#    Type: String
+#  DbPassword:
+#    NoEcho: True
+#    Type: String
+#  DbHost:
+#    Type: String
+#  DbPort:
+#    Type: String
+#    Default: "5432"
+#  DbDatabase:
+#    Type: String
+
+Resources:
+  MyEC2InstanceResouce:
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        # The template use an AMI that has SmartMet Server and Redis running
+        # inside a Docker container
+        LaunchTemplateId: lt-0103908425591b1a5
+        Version: 3
+      Tags:
+        - Key: Name
+          Value: !Join
+            - ''
+            - - 'sasse-contouring-'
+              - !Ref ERA5DataYear
+              - '-'
+              - !Ref ERA5DataMonth
+        - Key: Year
+          Value: { "Ref" : "ERA5DataYear" }
+        - Key: Month
+          Value: { "Ref" : "ERA5DataMonth" }
+      UserData:
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/bash
+
+            # Create a directory that is configured in SmartMet Server filesys-to-smartmet.cfg settings file
+            # And volume mounted in docker-compose
+            mkdir -p /home/centos/era5-data
+
+            # Get data and rename to something ss understands
+            # Resulting files have first of January as "origintime" in filename
+            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-${ERA5DataYear}${ERA5DataMonth}.grib /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-${ERA5DataYear}${ERA5DataMonth}.grib
+            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2 /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2
+
+            # Allow normal user to access data
+            chown -R centos:centos /home/centos/era5-data
+
+            # The following starts the docker stuff as root from centos users
+            # home, and is propably really stupid,
+            # but with current know-how is the best that we can do
+            cd /home/centos/sasse-era5-smartmet-grid
+            git pull 
+            docker-compose up -d
+
+            # THE SMARTMET-SERVER DOCKER IMAGE HAS TO BE RUNNING IN ORDER FOR THE NEXT STEPS TO WORK
+
+            # git clone git@github.com:fmidev/sasse-era5-smartmet-grid.git
+            # cd sasse-era5-smartmet-grid
+            #
+            # CHECK THAT THE AMI HAS DOCKER CONTAINERS RUNNING ON START
+            # Run filesys2smartmet-thingy, as smartmet user, because unknown reasons
+            docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
