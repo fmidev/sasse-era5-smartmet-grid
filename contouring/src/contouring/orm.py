@@ -8,7 +8,7 @@ from geoalchemy2 import Geometry
 # Really annoying to define the schema here, and not in the app.py
 # It'd be nice to figure out a way to pass it as an argument somehow.
 schema_name = 'sasse'
-metadata = MetaData(schema=schema_name) 
+metadata = MetaData(schema=schema_name)
 Base = declarative_base(metadata=metadata)
 
 # Add schema to database if it's not there
@@ -20,9 +20,9 @@ event.listen(
 
 class StormCell(Base):
     __tablename__ = 'stormcell'
-    
+
     id = Column(Integer, primary_key=True)
-    storm_id = Column(Integer,
+    storm_id = Column(String,
         doc="Referring to storm that consists of multiple storm cells",
         comment="Referring to storm that consists of multiple storm cells"
         )
@@ -32,7 +32,7 @@ class StormCell(Base):
         comment="Occurrance time of the weather phenomenon"
         )
     weather_parameter = Column(
-        String, 
+        String,
         doc="Name of weather phenomenon",
         comment="Name of weather phenomenon"
         )
@@ -41,10 +41,10 @@ class StormCell(Base):
     high_limit = Column(Integer)
     geom =  Column(Geometry('POLYGON'))
     created = Column(
-        DateTime(timezone=True), 
+        DateTime(timezone=True),
         default=datetime.datetime.utcnow
         )
     modified = Column(
-        DateTime(timezone=True), 
+        DateTime(timezone=True),
         onupdate=datetime.datetime.utcnow
         )
