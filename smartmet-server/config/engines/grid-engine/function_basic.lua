@@ -50,7 +50,43 @@ function ABS(numOfParams,params)
 
 end
 
+-- ***********************************************************************
+--  FUNCTION : STD
+-- ***********************************************************************
+--  The function returns the standard deviation value of the given parameters.
+-- ***********************************************************************
 
+function STD(numOfParams,params)
+
+  local result = {};
+  local count = 0;
+
+  if (numOfParams > 0) then
+    local sum = 0;
+    local vm;
+    local mean;
+
+    mean = AVG(numOfParams, params)
+
+    for index, value in pairs(params) do
+      if value ~= ParamValueMissing then
+        vm = value - mean;
+        sum = sum + (vm * vm);
+        count = count + 1;
+      end
+    end
+
+    result.message = 'OK';
+    result.value = math.sqrt(sum / (count));
+
+  else
+    result.message = 'OK';
+    result.value = ParamValueMissing;
+  end
+
+  return result.value,result.message;
+
+end
 
 
 
@@ -76,39 +112,8 @@ function AVG(numOfParams,params)
     result.message = 'OK';
     result.value = sum / count;
   else
-    result.message = 'No parameters given!';
-    result.value = 0;
-  end
-
-  return result.value,result.message;
-
-end
-
-
--- ***********************************************************************
---  FUNCTION : NAN AVG
--- ***********************************************************************
---  The function returns the average value of the given parameters.
--- ***********************************************************************
-
-function NANAVG(numOfParams,params)
-
-  local result = {};
-  local count = 0;
-
-  if (numOfParams > 0) then
-    local sum = 0;
-    for index, value in pairs(params) do
-      if (value ~= ParamValueMissing) then
-	    sum = sum + value;
-	    count = count + 1;
-	  end
-    end
     result.message = 'OK';
-    result.value = sum / count;
-  else
-    result.message = 'OK';
-    result.value = -99;
+    result.value = ParamValueMissing;
   end
 
   return result.value,result.message;
@@ -166,38 +171,8 @@ function MAX(numOfParams,params)
     result.message = 'OK';
     result.value = max;
   else
-    result.message = 'No parameters given!';
-    result.value = 0;
-  end
-
-  return result.value,result.message;
-
-end
-
-
--- ***********************************************************************
---  FUNCTION : NAN MAX
--- ***********************************************************************
---  The function returns the maximum value of the given parameters.
--- ***********************************************************************
-
-function NANMAX(numOfParams,params)
-
-  local result = {};
-
-  if (numOfParams > 0) then
-    local max = params[1];
-    for index, value in pairs(params) do
-      if (value > max and value ~= ParamValueMissing) then
-        max = value;
-      end
-    end
-
     result.message = 'OK';
-    result.value = max;
-  else
-    result.message = 'OK';
-    result.value = -99;
+    result.value = ParamValueMissing;
   end
 
   return result.value,result.message;
@@ -226,38 +201,8 @@ function MIN(numOfParams,params)
     result.message = 'OK';
     result.value = min;
   else
-    result.message = 'No parameters given!';
-    result.value = 0;
-  end
-
-  return result.value,result.message;
-
-end
-
-
--- ***********************************************************************
---  FUNCTION : NAN MIN
--- ***********************************************************************
---  The function returns the minimum value of the given parameters.
--- ***********************************************************************
-
-function NANMIN(numOfParams,params)
-
-  local result = {};
-
-  if (numOfParams > 0) then
-    local min = params[1];
-    for index, value in pairs(params) do
-      if (value < min and value ~= ParamValueMissing) then
-        min = value;
-      end
-    end
-
     result.message = 'OK';
-    result.value = min;
-  else
-    result.message = 'OK';
-    result.value = -99;
+    result.value = ParamValueMissing;
   end
 
   return result.value,result.message;
@@ -385,51 +330,14 @@ function SUM(numOfParams,params)
     result.message = 'OK';
     result.value = sum;
   else
-    result.message = 'No parameters given!';
-    result.value = 0;
+    result.message = 'OK';
+    result.value = ParamValueMissing;
   end
 
   return result.value,result.message;
 
 end
 
-
-
--- ***********************************************************************
---  FUNCTION : NAN SUM
--- ***********************************************************************
---  The function returns the sum of the given parameters.
--- ***********************************************************************
-
-function SUM(numOfParams,params)
-
-  local result = {};
-
-  -- for index, value in pairs(params) do
-  --  print("SUM "..index.." : "..value);
-  -- end
-
-  if (numOfParams > 0) then
-    local sum = 0;
-    for index, value in pairs(params) do
-      if (value ~= ParamValueMissing) then
-        sum = sum + value;
-      else
-        result.message = 'OK';
-        result.value = ParamValueMissing;
-        return result.value,result.message;
-      end
-    end
-    result.message = 'OK';
-    result.value = sum;
-  else
-    result.message = 'OK';
-    result.value = -99;
-  end
-
-  return result.value,result.message;
-
-end
 
 
 
@@ -1095,7 +1003,7 @@ function getFunctionNames(type)
   local functionNames = '';
 
   if (type == 1) then
-    functionNames = 'ABS,NANAVG,AVG,DIV,ITEM,NANMAX,MAX,NANMIN,MIN,MUL,NEG,NANSUM,SUM,DIFF,HYPOT,SQRT,IF,EQ,NEG,GT,GTE,LT,LTE,AND,OR,NOT,IN,INSIDE,OUTSIDE';
+    functionNames = 'STD,ABS,AVG,DIV,ITEM,MAX,MIN,MUL,NEG,SUM,DIFF,HYPOT,SQRT,IF,EQ,NEG,GT,GTE,LT,LTE,AND,OR,NOT,IN,INSIDE,OUTSIDE';
   end
 
   if (type == 5) then
