@@ -77,7 +77,7 @@ function STD(numOfParams,params)
     end
 
     result.message = 'OK';
-    result.value = math.sqrt(sum / (count));
+    result.value = math.sqrt(sum / count);
 
   else
     result.message = 'OK';
