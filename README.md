@@ -94,3 +94,14 @@ Exaple:
 Read data to Redis, wait for a while, and then curl the WFS like a boss:
 
 `/bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0 && sleep 60 && curl 'localhost//wfs?request=getFeature&storedquery_id=windgustcoverage&starttime=2017-08-01T00:00:00Z&endtime=2017-08-01T00:00:00Z&source=grid&bbox=21,60,24,64&crs=EPSG:4326&limits=10,25'`
+
+# Update process for the AMI
+ 1. log in to a running EC2 instace
+ 1. `cd ~/sasse-era5-smartmet-grid`
+ 1. `git pull`
+ 1. `docker-compose build --no-cache`
+ 1. Create a new AMI from the instance (with a new name)
+ 1. Update LaunchTemplate with id `lt-0103908425591b1a5`
+  1. change version number
+  1. Change AMI
+ 1. Change version number also to cloudformation-xx.template

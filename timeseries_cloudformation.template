@@ -19,6 +19,12 @@ Parameters:
   DbDialect:
     Type: String
     Default: "postgresql"
+  StartTime:
+    Type: String
+    Default: "2010-01-23T13:00:00"
+  EndTime:
+    Type: String
+    Default: "2010-01-23T13:00:00"
 #  DbUsername:
 #    Type: String
 #  DbPassword:
@@ -54,6 +60,8 @@ Resources:
           Value: { "Ref" : "ERA5DataYear" }
         - Key: Month
           Value: { "Ref" : "ERA5DataMonth" }
+        - Key: type
+          Value: "sasse-timeseries"
       UserData:
         Fn::Base64:
           Fn::Sub: |
@@ -75,8 +83,8 @@ Resources:
             # home, and is propably really stupid,
             # but with current know-how is the best that we can do
             cd /home/centos/sasse-era5-smartmet-grid
-            git pull 
-            docker-compose up -d
+            git pull
+            docker-compose up -d fminames-db
 
             # THE SMARTMET-SERVER DOCKER IMAGE HAS TO BE RUNNING IN ORDER FOR THE NEXT STEPS TO WORK
 
@@ -84,5 +92,12 @@ Resources:
             # cd sasse-era5-smartmet-grid
             #
             # CHECK THAT THE AMI HAS DOCKER CONTAINERS RUNNING ON START
-            # Run filesys2smartmet-thingy, as smartmet user, because unknown reasons
             docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
+
+            # Run data extraction
+            cd /home/centos/sasse-polygon-process
+            export StartTime=${StartTime}
+            export EndTime=${EndTime}
+            docker-compose run tracker
+            #python -u tracker/storm_tracker.py --starttime ${StartTime} --endtime ${EndTime}
+            sudo shutdown now
