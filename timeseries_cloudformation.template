@@ -98,6 +98,11 @@ Resources:
             cd /home/centos/sasse-polygon-process
             export StartTime=${StartTime}
             export EndTime=${EndTime}
+            export smartmet_config_name=production
+            export db_config_name=production
+
             docker-compose run tracker
-            #python -u tracker/storm_tracker.py --starttime ${StartTime} --endtime ${EndTime}
+
+            #python -u tracker/storm_tracker.py --starttime ${StartTime} --endtime ${EndTime} --db_config_name production --smartmet_config_name production
+
             sudo shutdown now
