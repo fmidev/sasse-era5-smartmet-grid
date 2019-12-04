@@ -9,6 +9,7 @@ Description: >
 # For an example to setup SmartMet Server with ERA5 data for January 2017:
 # aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=01
 # aws cloudformation deploy --template-file cloudformation.template --stack-name my-sasse-stack --parameter-overrides ERA5DataYear=2010 ERA5DataMonth=01 --tags Name=sasse-2010-01
+
 Parameters:
   ERA5DataYear:
     Type: String
@@ -25,18 +26,6 @@ Parameters:
   EndTime:
     Type: String
     Default: "2010-01-23T13:00:00"
-#  DbUsername:
-#    Type: String
-#  DbPassword:
-#    NoEcho: True
-#    Type: String
-#  DbHost:
-#    Type: String
-#  DbPort:
-#    Type: String
-#    Default: "5432"
-#  DbDatabase:
-#    Type: String
 
 Resources:
   MyEC2InstanceResouce:
@@ -102,7 +91,5 @@ Resources:
             export db_config_name=production
 
             docker-compose run tracker
-
-            #python -u tracker/storm_tracker.py --starttime ${StartTime} --endtime ${EndTime} --db_config_name production --smartmet_config_name production
 
             sudo shutdown now
