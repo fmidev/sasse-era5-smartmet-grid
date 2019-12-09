@@ -5,6 +5,8 @@ from datetime import timedelta
 from urllib.parse import urlparse
 
 template_url = "https://fmi-sasse-cloudformation.s3-eu-west-1.amazonaws.com/timeseries_cloudformation.template"
+instance_limit = 40
+
 def add_month(dt0):
     dt1 = dt0.replace(day=1)
     dt2 = dt1 + timedelta(days=32)
@@ -43,6 +45,26 @@ def terminate_stopped():
     ]
     ec2.instances.filter(Filters=custom_filter).terminate()
 
+def delete_complete_stacks():
+    logging.info('Deleting stacks...')
+    statuses = ['ROLLBACK_COMPLETE', 'CREATE_COMPLETE', 'UPDATE_COMPLETE']
+    client = boto3.client('cloudformation')
+    cfn = boto3.resource('cloudformation')
+    stacks = [stack for stack in cfn.stacks.all() if stack.stack_status in statuses]
+    count = 0
+    for s in stacks:
+        response = client.delete_stack(StackName=s.name)
+
+        # we expect a response, if its missing on non 200 then show response
+        if 'ResponseMetadata' in response and \
+            response['ResponseMetadata']['HTTPStatusCode'] < 300:
+            count += 1
+        else:
+            logging.critical("There was an Unexpected error. response: {0}".format(json.dumps(response)))
+
+    logging.info('...removed {} stacks'.format(count))
+
+
 def run(start, end):
     cfn = boto3.client('cloudformation')
     #current_ts = datetime.now().isoformat().split('.')[0].replace(':','-')
@@ -51,20 +73,20 @@ def run(start, end):
     capabilities = ['CAPABILITY_IAM', 'CAPABILITY_AUTO_EXPAND']
     try:
         template_params = [{
-        "ParameterKey": "ERA5DataYear",
-        "ParameterValue": str(start.year)
+            "ParameterKey": "ERA5DataYear",
+            "ParameterValue": str(start.year)
         },
         {
-        "ParameterKey": "ERA5DataMonth",
-        "ParameterValue": str(start.month)
+            "ParameterKey": "ERA5DataMonth",
+            "ParameterValue": start.strftime('%m')
         },
         {
-        "ParameterKey": "StartTime",
-        "ParameterValue": start.strftime('%Y-%m-%dT%H:%M:%S')
+            "ParameterKey": "StartTime",
+            "ParameterValue": start.strftime('%Y-%m-%dT%H:%M:%S')
         },
         {
-        "ParameterKey": "EndTime",
-        "ParameterValue": end.strftime('%Y-%m-%dT%H:%M:%S')
+            "ParameterKey": "EndTime",
+            "ParameterValue": end.strftime('%Y-%m-%dT%H:%M:%S')
         }
         ]
         #print(template_params)
@@ -93,16 +115,24 @@ def main():
         jobs.append((start, end))
         start = end
 
+    delete_complete_stacks()
+
     while len(jobs) > 0:
-        if get_instance_count() < 10:
-            logging.info('Under 10 instances running, working...')
+        if get_instance_count() < instance_limit:
+            logging.info('Under {} instances running, working...'.format(instance_limit))
             terminate_stopped()
             s, e = jobs.pop()
             run(s, e)
+            #run(dt.datetime.strptime('2011-03-01T00:00:00', "%Y-%m-%dT%H:%M:%S"), 
+            #    dt.datetime.strptime('2011-03-31T00:00:00', "%Y-%m-%dT%H:%M:%S"))
         else:
-            logging.info('10 or more instances running, sleeping...')
+            logging.info('{} or more instances running, sleeping...'.format(instance_limit))
             time.sleep(10*60)
 
+    logging.info('All done. Sleeping 12 hours and cleaning up...')
+    time.sleep(60*60*12)
+    delete_complete_stacks()
+    terminate_stopped()
 
 if __name__ =='__main__':
     main()
