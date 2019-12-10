@@ -118,15 +118,16 @@ def main():
     delete_complete_stacks()
 
     while len(jobs) > 0:
-        if get_instance_count() < instance_limit:
-            logging.info('Under {} instances running, working...'.format(instance_limit))
+        instance_count = get_instance_count()
+        if instance_count < instance_limit:
+            logging.info('{}/{} instances running, working...'.format(instance_count, instance_limit))
             terminate_stopped()
             s, e = jobs.pop()
             run(s, e)
-            #run(dt.datetime.strptime('2011-03-01T00:00:00', "%Y-%m-%dT%H:%M:%S"), 
+            #run(dt.datetime.strptime('2011-03-01T00:00:00', "%Y-%m-%dT%H:%M:%S"),
             #    dt.datetime.strptime('2011-03-31T00:00:00', "%Y-%m-%dT%H:%M:%S"))
         else:
-            logging.info('{} or more instances running, sleeping...'.format(instance_limit))
+            logging.info('{}/{} instances running, sleeping...'.format(instance_count, instance_limit))
             time.sleep(10*60)
 
     logging.info('All done. Sleeping 12 hours and cleaning up...')
