@@ -2,13 +2,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >
-  Here are some
-  details about
-  the template.
-
-# For an example to setup SmartMet Server with ERA5 data for January 2017:
-# aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=01
-# aws cloudformation deploy --template-file cloudformation.template --stack-name my-sasse-stack --parameter-overrides ERA5DataYear=2010 ERA5DataMonth=01 --tags Name=sasse-2010-01
+  SASSE feature extaction
 
 Parameters:
   ERA5DataYear:
@@ -17,9 +11,6 @@ Parameters:
   ERA5DataMonth:
     Type: String
     AllowedPattern: (0[1-9]|1[0-2])
-  DbDialect:
-    Type: String
-    Default: "postgresql"
   StartTime:
     Type: String
     Default: "2010-01-23T13:00:00"
@@ -36,7 +27,7 @@ Resources:
         # The template use an AMI that has SmartMet Server and Redis running
         # inside a Docker container
         LaunchTemplateId: lt-0103908425591b1a5
-        Version: 6
+        Version: 7
       Tags:
         - Key: Name
           Value: !Join

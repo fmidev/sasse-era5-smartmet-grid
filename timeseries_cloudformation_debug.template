@@ -33,7 +33,7 @@ Resources:
         # The template use an AMI that has SmartMet Server and Redis running
         # inside a Docker container
         LaunchTemplateId: lt-0103908425591b1a5
-        Version: 6
+        Version: 7
       Tags:
         - Key: Name
           Value: !Join
