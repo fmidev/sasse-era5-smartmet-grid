@@ -4,9 +4,8 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   SASSE data extraction debug template
 
-# For an example to setup SmartMet Server with ERA5 data for January 2017:
-# aws cloudformation deploy --template-file wtf-template.yaml --stack-name my-new-stack --parameters ParameterKey=ERA5DataYear,ParameterValue=2017,ParameterKey=ERA5DataMonth,ParameterValue=01
-# aws cloudformation deploy --template-file cloudformation.template --stack-name my-sasse-stack --parameter-overrides ERA5DataYear=2010 ERA5DataMonth=01 --tags Name=sasse-2010-01
+# For an example to setup SmartMet Server with ERA5 data for 2014/09:
+# aws cloudformation deploy --stack-name sasse-data-extact-debug-3 --template-file timeseries_cloudformation_debug.template --parameter-override ERA5DataYear=2014 ERA5DataMonth=09
 
 Parameters:
   ERA5DataYear:
@@ -72,9 +71,9 @@ Resources:
             cd /home/centos/sasse-era5-smartmet-grid
             # git pull
             docker-compose up -d fminames-db
+            sleep 15
             docker-compose up -d smartmet-server
-
-            sleep 10
+            sleep 15
 
             # THE SMARTMET-SERVER DOCKER IMAGE HAS TO BE RUNNING IN ORDER FOR THE NEXT STEPS TO WORK
 
@@ -84,15 +83,16 @@ Resources:
             # CHECK THAT THE AMI HAS DOCKER CONTAINERS RUNNING ON START
             docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
 
-            sleep 10
+            sleep 30
+
             docker-compose up -d smartmet-server
 
             # Run data extraction
             cd /home/centos/sasse-polygon-process
 
-            export StartTime=${StartTime}
-            export EndTime=${EndTime}
+            export StartTime=${ERA5DataYear}-${ERA5DataMonth}-00T00:00:00
+            export EndTime=${ERA5DataYear}-${ERA5DataMonth}-28T00:00:00
             export smartmet_config_name=production
             export db_config_name=production
 
-            docker-compose run tracker
+            # docker-compose run tracker
