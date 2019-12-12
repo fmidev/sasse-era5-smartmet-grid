@@ -3,7 +3,7 @@ version: "3"
 services:
   smartmet-server:
     image: smartmet-server:latest
-    build: 
+    build:
       context: ./smartmet-server
       dockerfile: Dockerfile
     container_name: smartmet-server
@@ -27,7 +27,7 @@ services:
       # Entrypoint has script to validate that database is ready
       - fminames-db
       - redis-db
-    restart: "no"
+    restart: "on-failure"
     volumes:
       - ./smartmet-server/config:/home/smartmet/config:Z
       # For this container you need grib2-data in ../era5-data directory
@@ -43,7 +43,7 @@ services:
   # smartmet-server/config/plugins/wfs.conf
   # smartmet-server/config/engines/geonames.conf
   fminames-db:
-    build: 
+    build:
       context: ./fminames-db
       dockerfile: Dockerfile
     image: fminames-db:latest
@@ -53,7 +53,7 @@ services:
       # This silly password needs to copied into ./smartmet/geonames.conf
       - POSTGRES_PASSWORD=OmaHassuSalasana1234!
       - POSTGRES_USER=fminames_user
-      # POSTGRES_DB: fminames  
+      # POSTGRES_DB: fminames
     ports:
       # Port exposed for connecting from host (not required in production)
      - "5432:5432"
@@ -75,7 +75,7 @@ services:
   # The thing to make the things that are needed for you-know-what
   contouring:
     image: contouring:latest
-    build: 
+    build:
       context: ./contouring
       dockerfile: Dockerfile
     container_name: contouring
@@ -84,5 +84,5 @@ services:
       - smartmet-server
     volumes:
       - ./contouring:/usr/src/app:Z
-    entrypoint: 
+    entrypoint:
       - "/bin/sh"
