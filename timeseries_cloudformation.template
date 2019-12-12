@@ -66,9 +66,9 @@ Resources:
             cd /home/centos/sasse-era5-smartmet-grid
             # git pull
             docker-compose up -d fminames-db
+            sleep 15
             docker-compose up -d smartmet-server
-
-            sleep 10
+            sleep 15
 
             # THE SMARTMET-SERVER DOCKER IMAGE HAS TO BE RUNNING IN ORDER FOR THE NEXT STEPS TO WORK
 
@@ -78,8 +78,7 @@ Resources:
             # CHECK THAT THE AMI HAS DOCKER CONTAINERS RUNNING ON START
             docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
 
-            sleep 10
-            docker-compose up -d smartmet-server
+            sleep 30
 
             # Run data extraction
             cd /home/centos/sasse-polygon-process
