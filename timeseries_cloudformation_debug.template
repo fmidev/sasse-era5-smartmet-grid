@@ -32,7 +32,7 @@ Resources:
         # The template use an AMI that has SmartMet Server and Redis running
         # inside a Docker container
         LaunchTemplateId: lt-0103908425591b1a5
-        Version: 7
+        Version: 8
       Tags:
         - Key: Name
           Value: !Join
@@ -50,7 +50,7 @@ Resources:
       UserData:
         Fn::Base64:
           Fn::Sub: |
-            #!/bin/bash
+            #!/bin/bash -xe
 
             # Create a directory that is configured in SmartMet Server filesys-to-smartmet.cfg settings file
             # And volume mounted in docker-compose
@@ -59,8 +59,8 @@ Resources:
 
             # Get data and rename to something ss understands
             # Resulting files have first of January as "origintime" in filename
-            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-${ERA5DataYear}${ERA5DataMonth}.grib /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-${ERA5DataYear}${ERA5DataMonth}.grib
-            aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2 /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2
+            # aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-${ERA5DataYear}${ERA5DataMonth}.grib /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-${ERA5DataYear}${ERA5DataMonth}.grib
+            # aws s3 cp s3://fmi-era5-world-nwp-parameters/${ERA5DataYear}/era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2 /home/centos/era5-data/ERA5_${ERA5DataYear}0101T000000_era5-preprocessed-${ERA5DataYear}${ERA5DataMonth}.grib2
 
             # Allow normal user to access data
             chown -R centos:centos /home/centos/era5-data
@@ -71,8 +71,8 @@ Resources:
             cd /home/centos/sasse-era5-smartmet-grid
             # git pull
             docker-compose up -d fminames-db
-            sleep 15
             docker-compose up -d smartmet-server
+
             sleep 15
 
             # THE SMARTMET-SERVER DOCKER IMAGE HAS TO BE RUNNING IN ORDER FOR THE NEXT STEPS TO WORK
@@ -81,16 +81,16 @@ Resources:
             # cd sasse-era5-smartmet-grid
             #
             # CHECK THAT THE AMI HAS DOCKER CONTAINERS RUNNING ON START
-            docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
+            # docker exec --user smartmet smartmet-server /bin/fmi/filesys2smartmet /home/smartmet/config/libraries/tools-grid/filesys-to-smartmet.cfg 0
 
-            sleep 30
+            # sleep 300
 
-            docker-compose up -d smartmet-server
+            # docker-compose up -d smartmet-server
 
             # Run data extraction
             cd /home/centos/sasse-polygon-process
 
-            export StartTime=${ERA5DataYear}-${ERA5DataMonth}-00T00:00:00
+            export StartTime=${ERA5DataYear}-${ERA5DataMonth}-01T00:00:00
             export EndTime=${ERA5DataYear}-${ERA5DataMonth}-28T00:00:00
             export smartmet_config_name=production
             export db_config_name=production
