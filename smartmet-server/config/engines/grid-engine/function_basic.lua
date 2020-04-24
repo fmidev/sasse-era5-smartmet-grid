@@ -210,6 +210,47 @@ function MIN(numOfParams,params)
 end
 
 
+-- ***********************************************************************
+--  FUNCTION : QUANTILE
+-- ***********************************************************************
+--  The function returns requested quantile
+-- ***********************************************************************
+
+function QUANTILE(numOfParams,params)
+
+  local result = {};
+
+  if (numOfParams > 1) then
+    q = params[1];
+    t = unpack{params,2};
+    assert(q >= 0 and q <= 1, "Quantile must be between 0 and 1");
+    table.sort(t);
+
+    local position = #t * q + 0.5;
+    local mod = position % 1;
+
+    if position < 1 then 
+       local_result = t[1];
+    elseif position > #t then
+       local_result = t[#t];
+    elseif mod == 0 then
+       local_result = t[position];
+    else
+       local_result = mod * t[math.ceil(position)] +
+           (1 - mod) * t[math.floor(position)];
+    end
+
+    result.value = local_result;
+    result.message = 'OK'; 
+  else
+    result.message = 'OK';
+    result.value = ParamValueMissing;
+  end
+
+  return result.value,result.message;
+
+end
+
 
 -- ***********************************************************************
 --  FUNCTION : MUL
@@ -1003,7 +1044,7 @@ function getFunctionNames(type)
   local functionNames = '';
 
   if (type == 1) then
-    functionNames = 'STD,ABS,AVG,DIV,ITEM,MAX,MIN,MUL,NEG,SUM,DIFF,HYPOT,SQRT,IF,EQ,NEG,GT,GTE,LT,LTE,AND,OR,NOT,IN,INSIDE,OUTSIDE';
+    functionNames = 'STD,ABS,AVG,DIV,ITEM,MAX,MIN,MUL,NEG,SUM,DIFF,HYPOT,SQRT,IF,EQ,NEG,GT,GTE,LT,LTE,AND,OR,NOT,IN,INSIDE,OUTSIDE,QUANTILE';
   end
 
   if (type == 5) then
