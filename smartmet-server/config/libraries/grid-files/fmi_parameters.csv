@@ -1126,3 +1126,9 @@
 1230;1;SOT-WG-N;JustAnumber;Shift Of Tails for wind gusts;2;2;2;;
 1232;1;EFI-WG--1TO1;-1 to 1;Extreme Forecast Index for wind gusts;2;2;2;;
 1233;1;EFI-RR--1TO1;-1 to 1;Extreme Forecast Index for precipitation;2;2;2;;
+90001;1;FORESTAGE;Forest age from Luke;1;1;1;;
+90002;1;FORESTLOCATION;;Forest location from Luke;1;1;1;;;
+90003;1;FORESTDIAMETER;;Forest diameter from Luke;1;1;1;;;
+90004;1;FORESTLENGTH;;Forest length from Luke;1;1;1;;;
+90005;1;FORESTCANOPY;;Forest canopy cover from Luke;1;1;1;;;
+90006;1;FORESTTYPE;;Forest type from Luke;1;1;1;;;
