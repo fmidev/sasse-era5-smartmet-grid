@@ -219,12 +219,29 @@ end
 function QUANTILE(numOfParams,params)
 
   local result = {};
+  local start = 0;
 
   if (numOfParams > 1) then
     q = params[1];
     t = unpack{params,2};
     assert(q >= 0 and q <= 1, "Quantile must be between 0 and 1");
-    table.sort(t);
+
+    table.sort(t);   
+
+    for k, v in pairs(t) do
+       if v ~= ParamValueMissing then
+       	  start = k;
+	  break;
+       end
+    end
+  
+    local nt = {};
+    local ni = 0;
+    for i=start,#t do
+    	rawset(nt, ni, t[i])
+	ni = ni + 1;
+    end
+    t = nt;
 
     local position = #t * q + 0.5;
     local mod = position % 1;
@@ -246,7 +263,7 @@ function QUANTILE(numOfParams,params)
     result.message = 'OK';
     result.value = ParamValueMissing;
   end
-
+  
   return result.value,result.message;
 
 end
